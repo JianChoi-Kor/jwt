@@ -1,9 +1,11 @@
 package com.example.jwt.jwt;
 
+import com.example.jwt.response.UserResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +53,13 @@ public class JwtUtil {
     }
 
     // 토큰 생성 전 단계
-    public String generateToken(String userId) {
+    public ResponseEntity<UserResponse.TokenDto> generateToken(String userId) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userId);
+
+        String token = createToken(claims, userId);
+        String refreshToken = createRefreshToken(claims, userId);
+
+        return ResponseEntity.ok(new UserResponse.TokenDto(token, refreshToken));
     }
 
     // 토큰 생성

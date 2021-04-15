@@ -30,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = null;
         String userId = null;
 
-        // 받아온 정보가 null이 아니고 + startsWith "Bearer "로 시작한다면 토큰 값과 userName을 추출
+        // 받아온 정보가 null이 아니고 + startsWith "Bearer "로 시작한다면 토큰 값과 userId 추출
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer")) {
             token = authorizationHeader.substring(7);
             userId = jwtUtil.extractUserId(token);
@@ -40,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
            UserDetails userDetails = service.loadUserByUsername(userId);
 
-           // validateToken method를 통해 토큰과 유저 정보가 일치하는지 확인
+           // validateToken method를 통해 토큰의 유효성을 확인
            if(jwtUtil.validateToken(token, userDetails)) {
 
                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
