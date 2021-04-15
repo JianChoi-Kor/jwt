@@ -53,13 +53,13 @@ public class JwtUtil {
     }
 
     // 토큰 생성 전 단계
-    public ResponseEntity<UserResponse.TokenDto> generateToken(String userId) {
+    public UserResponse.TokenDto generateToken(String userId) {
         Map<String, Object> claims = new HashMap<>();
 
         String token = createToken(claims, userId);
         String refreshToken = createRefreshToken(claims, userId);
 
-        return ResponseEntity.ok(new UserResponse.TokenDto(token, refreshToken));
+        return (new UserResponse.TokenDto(token, refreshToken));
     }
 
     // 토큰 생성

@@ -20,4 +20,9 @@ public class TokenEntity {
     private String token;
     private String refreshToken;
 
+    public TokenEntity(Long userIdx, String token, String refreshToken) {
+        this.userIdx = userIdx;
+        this.token = token;
+        this.refreshToken = refreshToken;
+    }
 }

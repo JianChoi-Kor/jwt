@@ -1,8 +1,10 @@
 package com.example.jwt.controller;
 
 import com.example.jwt.dto.UserDto;
+import com.example.jwt.entity.TokenEntity;
 import com.example.jwt.entity.UserEntity;
 import com.example.jwt.jwt.JwtUtil;
+import com.example.jwt.repository.TokenRepository;
 import com.example.jwt.repository.UserRepository;
 import com.example.jwt.response.UserResponse;
 import com.example.jwt.service.UserService;
@@ -24,20 +26,25 @@ public class UserController {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final TokenRepository tokenRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse.TokenDto> generateToken(UserDto.LoginDto loginDto) throws Exception {
+    public ResponseEntity<TokenEntity> generateToken(UserDto.LoginDto loginDto) throws Exception {
         try {
-
             // 아이디와 패스워드를 Secutiry가 알아볼 수 있는 token 객체로 변환한다.
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginDto.getUserId(), loginDto.getPassword());
             // AuthenticationManager에 token을 넘기면 UserDetailsService가 받아 처리하도록 한다.
             Authentication authentication = authenticationManager.authenticate(token);
 
         } catch (Exception e) {
-            throw new Exception("inavalid userId, password");
+            throw new Exception("아이디 비밀번호가 일치하지 않습니다.");
         }
-        return jwtUtil.generateToken(loginDto.getUserId());
+        // 토큰 생성
+        UserResponse.TokenDto tokens = jwtUtil.generateToken(loginDto.getUserId());
+        UserEntity user = userService.findByUserId(loginDto.getUserId());
+        System.out.println(user);
+
+        return ResponseEntity.ok(tokenRepository.save(new TokenEntity(user.getId(), tokens.getToken(), tokens.getRefreshToken())));
     }
 
     @PostMapping("/sign")
