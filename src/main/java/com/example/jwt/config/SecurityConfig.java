@@ -1,0 +1,68 @@
+package com.example.jwt.config;
+
+import com.example.jwt.jwt.JwtFilter;
+import com.example.jwt.service.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final CustomUserDetailsService userDetailsService;
+    private final JwtFilter jwtFilter;
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring()
+                .antMatchers(
+                        "/v2/api-docs", "/configuration/ui", "/swagger-resources/**",
+                        "/configuration/security", "/swagger-ui.html", "/webjars/**", "/swagger/**"
+                );
+    }
+
+    // 암호화에 필요한 PasswordEncoder Bean 등록
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // authenticationManager Bean 등록
+    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // 필터 등록
+        http
+                .httpBasic().disable() // REST API만 고려, 기본 설정을 해제
+                .csrf().disable() // csrf 사용 X
+                .authorizeRequests().antMatchers("/user/login")
+                // 요청에 대한 사용 권한 체크
+                .permitAll().anyRequest().authenticated()
+                // 나머지 요청은 누구나 접근 가능
+                .and().exceptionHandling().and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                // 토큰 기반 인증이므로 세션도 사용 X
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        // jwtFilter는 UsernamePasswordAuthenticationFilter 전에 들어간다.
+
+    }
+}
+
