@@ -39,6 +39,16 @@ public class UserController {
     }
 
 
+    @GetMapping("/info")
+    public ResponseEntity<UserResponse.UserInfoDto> getUserInfo(HttpServletRequest httpServletRequest) throws Exception {
+
+        String authorizationHeader = httpServletRequest.getHeader("authorization");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtUtil.extractUserId(accessToken);
+
+        return ResponseEntity.ok(userRepositorySupport.getUserInfo(userId));
+    }
+
 
     @PostMapping("/login")
     public ResponseEntity<UserResponse.LoginResponse> generateToken(UserDto.LoginDto loginDto, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
@@ -56,7 +66,7 @@ public class UserController {
         // 기존의 토큰이 있는 경우
         if(tokenInfo != null) {
             System.out.println("기존에 발급받은 토큰이 있는 경우");
-            httpServletResponse.setHeader("authorization", tokenInfo.getAccessToken());
+            httpServletResponse.setHeader("Authorization", tokenInfo.getAccessToken());
             return ResponseEntity.ok(tokenInfo);
         }
 
@@ -65,7 +75,7 @@ public class UserController {
         UserResponse.TokenDto tokens = jwtUtil.generateToken(loginDto.getUserId());
         UserEntity user = userService.findByUserId(loginDto.getUserId());
 
-        httpServletResponse.setHeader("authorization", tokens.getAccessToken());
+        httpServletResponse.setHeader("Authorization", tokens.getAccessToken());
         tokenRepository.save(new TokenEntity(user.getId(), tokens.getAccessToken(), tokens.getRefreshToken()));
 
 
@@ -77,4 +87,5 @@ public class UserController {
     public ResponseEntity<UserEntity> sign(UserDto.SignDto signDto) {
         return ResponseEntity.ok(userService.signUp(signDto));
     }
+
 }

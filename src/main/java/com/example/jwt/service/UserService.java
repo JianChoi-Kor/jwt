@@ -3,6 +3,7 @@ package com.example.jwt.service;
 import com.example.jwt.dto.UserDto;
 import com.example.jwt.entity.UserEntity;
 import com.example.jwt.repository.UserRepository;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,6 @@ public class UserService {
 
         return userRepository.save(user);
     }
-
 
     public UserEntity findByUserId(String userId) {
         return userRepository.findByUserId(userId);

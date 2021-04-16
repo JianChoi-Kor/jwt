@@ -2,10 +2,10 @@ package com.example.jwt.jwt;
 
 import com.example.jwt.response.UserResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class JwtUtil {
     private final String secretKey = "jwtTest";
 
     // 토큰 유효시간 설정
-    private final Long tokenValidTime = 3 * 60 * 1000L;
+    private final Long tokenValidTime = 60 * 60 * 1000L;
     private final Long refreshTokenValidTime = 7 * 24 * 60 * 60 * 1000L;
 
     // 토큰 정보로부터 아이디 추출
@@ -48,6 +48,7 @@ public class JwtUtil {
     }
 
     // 토큰 유효시간 확인
+    // extractExpiration(token) 값이 지금보다 전이면 토큰 만료 isTokenExpired = true
     public Boolean isTokenExpired(String token) throws Exception{
         return extractExpiration(token).before(new Date());
     }

@@ -1,7 +1,6 @@
 package com.example.jwt.config;
 
 import com.example.jwt.jwt.JwtFilter;
-import com.example.jwt.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +13,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final CustomUserDetailsService userDetailsService;
+    private final JwtFilter jwtFilter;
 
     @Override
     public void configure(WebSecurity web) {
@@ -51,14 +51,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .httpBasic().disable() // REST API만 고려, 기본 설정을 해제
                 .csrf().disable() // csrf 사용 X
-                .authorizeRequests().antMatchers("/user/login", "/user/sign", "/user/**")
+                .authorizeRequests().antMatchers("/user/login", "/user/sign")
                 // 요청에 대한 사용 권한 체크
                 .permitAll().anyRequest().authenticated()
                 // 나머지 요청은 누구나 접근 가능
                 .and().exceptionHandling().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 // 토큰 기반 인증이므로 세션도 사용 X
-
+        http.
+                addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
 
