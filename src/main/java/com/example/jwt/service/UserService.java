@@ -25,6 +25,7 @@ public class UserService {
                 .userId(signDto.getUserId())
                 .password(passwordEncoder.encode(signDto.getPassword()))
                 .userName(signDto.getUserName())
+                .email(signDto.getEmail())
                 .build();
 
         return userRepository.save(user);

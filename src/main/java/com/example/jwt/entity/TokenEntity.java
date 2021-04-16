@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class TokenEntity {
@@ -17,12 +16,19 @@ public class TokenEntity {
     @Column(name = "token_idx")
     private Long id;
     private Long userIdx;
-    private String token;
+    private String accessToken;
     private String refreshToken;
 
-    public TokenEntity(Long userIdx, String token, String refreshToken) {
+    public TokenEntity(Long id, Long userIdx, String accessToken, String refreshToken) {
+        this.id = id;
         this.userIdx = userIdx;
-        this.token = token;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
+    public TokenEntity(Long userIdx, String accessToken, String refreshToken) {
+        this.userIdx = userIdx;
+        this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
 }

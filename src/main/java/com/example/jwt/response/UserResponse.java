@@ -10,7 +10,17 @@ public class UserResponse {
     @Setter
     @AllArgsConstructor
     public static class TokenDto {
-        private String token;
+        private String accessToken;
         private String refreshToken;
+    }
+
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class LoginResponse {
+       private Long userIdx;
+       private String accessToken;
+       private String refreshToken;
     }
 }
