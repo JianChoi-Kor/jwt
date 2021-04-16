@@ -2,10 +2,10 @@ package com.example.jwt.jwt;
 
 import com.example.jwt.response.UserResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,20 +24,20 @@ public class JwtUtil {
     private final String secretKey = "jwtTest";
 
     // 토큰 유효시간 설정
-    private final Long tokenValidTime = 30 * 60 * 1000L;
+    private final Long tokenValidTime = 60 * 60 * 1000L;
     private final Long refreshTokenValidTime = 7 * 24 * 60 * 60 * 1000L;
 
     // 토큰 정보로부터 아이디 추출
-    public String extractUserId(String token) {
+    public String extractUserId(String token) throws Exception {
         return extractClaim(token, Claims::getSubject);
     }
 
     /// 토큰 정보로부터 토큰 유효시간 추출
-    public Date extractExpiration(String token) {
+    public Date extractExpiration(String token) throws Exception{
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws Exception{
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -48,7 +48,8 @@ public class JwtUtil {
     }
 
     // 토큰 유효시간 확인
-    private Boolean isTokenExpired(String token) {
+    // extractExpiration(token) 값이 지금보다 전이면 토큰 만료 isTokenExpired = true
+    public Boolean isTokenExpired(String token) throws Exception{
         return extractExpiration(token).before(new Date());
     }
 
@@ -81,8 +82,9 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, secretKey).compact(); // 사용할 알고리즘과 secretKey 값을 세팅
     }
 
+    // 토큰 유효성 검사
+    public Boolean validateToken(String token, UserDetails userDetails) throws Exception {
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
         final String userId = extractUserId(token);
         return (userId.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }

@@ -1,7 +1,6 @@
 package com.example.jwt.config;
 
 import com.example.jwt.jwt.JwtFilter;
-import com.example.jwt.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final CustomUserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
 
     @Override
@@ -60,9 +58,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 // 토큰 기반 인증이므로 세션도 사용 X
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        // jwtFilter는 UsernamePasswordAuthenticationFilter 전에 들어간다.
-
+        http.
+                addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }
 
