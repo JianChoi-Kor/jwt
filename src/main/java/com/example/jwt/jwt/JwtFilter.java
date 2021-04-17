@@ -34,7 +34,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @SneakyThrows
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain)
+            throws ServletException, IOException {
         System.out.println("jwt 필터 실행 여부 확인");
 
         // request에서 "Authorization" 이라는 이름의 header 정보를 받아온다.

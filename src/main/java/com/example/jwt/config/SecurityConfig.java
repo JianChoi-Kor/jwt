@@ -31,20 +31,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 );
     }
 
-    // 암호화에 필요한 PasswordEncoder Bean 등록
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    // authenticationManager Bean 등록
-    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // 필터 등록
@@ -60,6 +46,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 토큰 기반 인증이므로 세션도 사용 X
         http.
                 addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    }
+
+    // 암호화에 필요한 PasswordEncoder Bean 등록
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // authenticationManager Bean 등록
+    @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 }
 
