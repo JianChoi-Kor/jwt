@@ -3,24 +3,29 @@ package com.example.jwt.controller;
 import com.example.jwt.dto.UserDto;
 import com.example.jwt.entity.TokenEntity;
 import com.example.jwt.entity.UserEntity;
+import com.example.jwt.file.FileUtil;
 import com.example.jwt.jwt.JwtUtil;
 import com.example.jwt.repository.TokenRepository;
 import com.example.jwt.repository.UserRepositorySupport;
 import com.example.jwt.response.UserResponse;
 import com.example.jwt.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -31,6 +36,7 @@ public class UserController {
     private final UserService userService;
     private final TokenRepository tokenRepository;
     private final UserRepositorySupport userRepositorySupport;
+    private final FileUtil fileUtil;
 
 
     @GetMapping("/")
@@ -86,6 +92,33 @@ public class UserController {
     @PostMapping("/sign")
     public ResponseEntity<UserEntity> sign(UserDto.SignDto signDto) {
         return ResponseEntity.ok(userService.signUp(signDto));
+    }
+
+
+    @PostMapping("/uploadProfile")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<String> uploadProfile(@RequestParam List<MultipartFile> files, HttpServletRequest httpServletRequest) throws Exception {
+
+        // Header accessToken으로 부터 userId를 뽑아오는 코드, 자주 쓰인다면 따로 메소드로 뺴는 것이 좋을 듯
+        String authorizationHeader = httpServletRequest.getHeader("authorization");
+        String accessToken = authorizationHeader.substring(7);
+        String userId = jwtUtil.extractUserId(accessToken);
+
+        String rootPath = FileSystemView.getFileSystemView().getHomeDirectory().toString();
+        String basePath = rootPath + "/" + userId;
+
+        fileUtil.makeFolders(basePath);
+
+        List<String> list = new ArrayList<>();
+        for(MultipartFile file : files) {
+            String originalFileName = file.getOriginalFilename();
+            File dest = new File(basePath, originalFileName);
+            file.transferTo(dest);
+
+            list.add(basePath + "/" + originalFileName);
+        }
+        return list;
+
     }
 
 }
